@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conecte o Amor</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #2c3e50;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Estilo dos Cabos */
+        .game-container {
+            text-align: center;
+            color: white;
+        }
+
+        .cable-area {
+            position: relative;
+            width: 400px;
+            height: 100px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 50px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .cable {
+            width: 80px;
+            height: 15px;
+            background: #e74c3c;
+            border-radius: 5px;
+            position: absolute;
+            cursor: pointer;
+            z-index: 5;
+            box-shadow: 0 4px 0 #c0392b;
+        }
+
+        #target {
+            right: 20px;
+            background: #27ae60;
+            box-shadow: 0 4px 0 #1e8449;
+            cursor: default;
+        }
+
+        /* Cupidos Flutuantes */
+        .cupid {
+            position: absolute;
+            font-size: 50px;
+            display: none;
+            transition: all 0.5s ease;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+        }
+
+        /* Mensagem de Sucesso */
+        #victory {
+            display: none;
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        h1 { color: #ff4d6d; font-size: 3rem; margin-bottom: 0; }
+        h2 { color: #ffd166; font-size: 1.5rem; margin-top: 10px; }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <div id="instruction">
+            <h2 style="color: white;">Conecte os cabos para a surpresa!</h2>
+        </div>
+
+        <div class="cable-area" id="dropzone">
+            <div id="drag-me" class="cable" style="left: 20px;"></div>
+            <div id="target" class="cable"></div>
+        </div>
+
+        <div id="victory">
+            <h1>Eu Te Amo Meu Momo! ❤️</h1>
+            <h2>vc é a minha mumu kkk</h2>
+        </div>
+    </div>
+
+    <div id="cupid1" class="cupid" style="top: 10%; left: 10%;">👼💘</div>
+    <div id="cupid2" class="cupid" style="bottom: 10%; right: 10%;">🏹❤️</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+        const drag = document.getElementById('drag-me');
+        const target = document.getElementById('target');
+        const victory = document.getElementById('victory');
+        const instruction = document.getElementById('instruction');
+        const cupidos = document.querySelectorAll('.cupid');
+
+        let isDragging = false;
+
+        drag.onmousedown = (e) => {
+            isDragging = true;
+            drag.style.cursor = 'grabbing';
+        };
+
+        document.onmousemove = (e) => {
+            if (!isDragging) return;
+            
+            let rect = document.getElementById('dropzone').getBoundingClientRect();
+            let newX = e.clientX - rect.left - 40;
+
+            // Limites da área
+            if (newX > 0 && newX < 300) {
+                drag.style.left = newX + 'px';
+            }
+
+            // Checar conexão
+            if (newX > 220) {
+                win();
+            }
+        };
+
+        document.onmouseup = () => {
+            isDragging = false;
+            drag.style.cursor = 'pointer';
+        };
+
+        function win() {
+            if (victory.style.display === 'block') return;
+
+            isDragging = false;
+            document.getElementById('dropzone').style.display = 'none';
+            instruction.style.display = 'none';
+            victory.style.display = 'block';
+
+            // Mostrar cupidos com animação
+            cupidos.forEach(c => {
+                c.style.display = 'block';
+                c.style.animation = 'float 3s infinite ease-in-out';
+            });
+
+            // Apenas corações (mais leve)
+            const count = 150;
+            const defaults = { origin: { y: 0.7 } };
+
+            function fire(particleRatio, opts) {
+                confetti({
+                    ...defaults,
+                    ...opts,
+                    particleCount: Math.floor(count * particleRatio),
+                    shapes: ['heart'],
+                    colors: ['#ff4d6d', '#ffafcc']
+                });
+            }
+
+            fire(0.25, { spread: 26, startVelocity: 55 });
+            fire(0.2, { spread: 60 });
+            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+        }
+    </script>
+</body>
+</html>
